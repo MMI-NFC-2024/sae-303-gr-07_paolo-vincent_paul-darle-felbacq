@@ -1,21 +1,74 @@
 ---
 import PlotFigure from "../components/PlotFigure.astro";
 import Layout from "../layouts/Layout.astro";
-import * as Plot from "@observablehq/plot";
-import penguins from "../assets/penguins.json";
+import medecins from "../assets/medecins_propres.json";
+import departements from "../assets/departements.geojson.json";
+const dpt = Math.floor(Math.random() * 74) +1;
+const search = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${dpt}`)
 ---
 
+<!-- str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); -->
+
 <Layout>
-  <h1 class="text-2xl">Test Astro et Plot (Observablehq)</h1>
-  <PlotFigure
-    options={{
-      marks: [
-        Plot.dot(penguins, {
-          x: "culmen_length_mm",
-          y: "culmen_depth_mm",
-          stroke: "species",
-        }),
-      ],
-    }}
-  />
+  <h1 class="text-2xl font-bold">Test Astro et Plot (Observablehq)</h1>
+  <div 
+    id="plot-container"
+    data-medecins={JSON.stringify(medecins)}
+    data-departements={JSON.stringify(departements)}
+  ></div>
 </Layout>
+
+<script>
+  import * as Plot from "@observablehq/plot";
+  
+  const container = document.querySelector("#plot-container");
+  const medecins = JSON.parse(container.dataset.medecins);
+  const departements = JSON.parse(container.dataset.departements);
+  
+  const plot = Plot.plot({
+    title: `Carte de France Montrant le nombre de médecins par département`,
+    height: 500,
+    width: 500,
+    projection: {
+      type: "mercator",
+      domain: departements
+    },
+    color: {
+      type: "linear",
+      scheme: "blues",
+      label: "Médecins pour 100 000 habitants",
+      legend: true
+    },
+    marks: [
+      Plot.geo(departements, {
+        fill: (d) => {
+          const nomDepartement = d.properties.nom;
+          const medData = medecins.find(
+            (med) => med.Departement === nomDepartement
+          );
+          return medData?.PourCent;
+        },
+        stroke: "black",
+        strokeWidth: 0.2,
+        tip: {
+          format: { x: false, y: false },
+          content: (d) => {
+            const nomDepartement = d.properties.nom;
+            const medData = medecins.find(
+              (med) => med.Departement === nomDepartement
+            );
+            if (!medData) return `Département: ${nomDepartement}\nDonnées non disponibles`;
+            return `Département: ${nomDepartement}\nMédecins: ${medData.Nombre}`;
+          }
+        }
+      })
+    ]
+  });
+  
+  container.append(plot);
+</script>
+
+<style>
+  :global(svg g[aria-label^="tip"] text) {
+    fill: black !important;
+  }
