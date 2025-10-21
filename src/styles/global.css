@@ -3,10 +3,56 @@
 
 @theme {
     /* colors */
-    --color-DeepBlue: #16152C;
-    --coloc-Black: #000000;
-    --color-White: #FFFFFF;
+    --color-deepblue: #16152C;
+    --color-black: #000000;
+    --color-white: #FFFFFF;
 
     /* Fonts */
     --font-jakarta: "Plus Jakarta Sans", sans-serif;
+}
+
+
+@layer base {
+    * {
+        font-family: var(--font-jakarta);
+        color: var(--color-white);
+    };
+    body {
+        background-color: var(--color-deepblue)
+    };
+    h1 {
+        font-size: var(--text-4xl);
+        font-weight: var(--font-weight-bold);
+    };
+    h2 {
+        font-size: var(--text-2xl);
+    };
+    h3 {
+        font-size: var(--text-lg);
+        font-weight: var(--font-weight-semibold);
+    }
+}
+
+@layer components {
+    .card {
+        background-color: var(--color-black);
+        padding: calc(var(--spacing)*4);
+        border-width: 1px;
+        border-radius: var(--radius-2xl);
+        border-color: var(--color-white);
+        border-style: solid;
+        display: flex;
+    };
+    .ring-figure {
+        width: 100%;
+        text-align: center;
+        font-size: var(--text-xl);
+        font-weight: var(--font-weight-bold);
+    };
+    .ring-text {
+        width: 100%;
+        text-align: center;
+        font-size: var(--text-sm);
+        text-wrap: wrap;
+    }
 }
