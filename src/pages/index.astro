@@ -3,19 +3,66 @@ import PlotFigure from "../components/PlotFigure.astro";
 import Layout from "../layouts/Layout.astro";
 import medecins from "../assets/medecins_propres.json";
 import departements from "../assets/departements.geojson.json";
-const dpt = Math.floor(Math.random() * 74) +1;
+
+
+let dpt = departements.features[Math.floor(Math.random() * departements.features.length)]?.properties?.nom ?? "Paris";
 const search = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${dpt}`)
+.then(response => response.json());
+const lat = search?.results?.[0]?.latitude ?? 0;
+const long = search?.results?.[0]?.longitude ?? 0;
+console.log(search, long, lat);
+
+
+
+let input = "";
+let suggestions = [];
+const handleSearch = ((e)=>{
+  input += e.target.value;
+})
 ---
 
 <!-- str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); -->
 
 <Layout>
-  <h1>Test Astro et Plot (Observablehq)</h1>
-  <div 
-    id="plot-container"
-    data-medecins={JSON.stringify(medecins)}
-    data-departements={JSON.stringify(departements)}
-  ></div>
+  <div class="flex">
+    <div class="grid grid-cols-3 *:h-fill grow-3">
+      <div class="bg-(--coloc-Black) rounded-xl md:rounded-2xl p-4 md:p-6 col-span-2 ">
+          <p class="text-gray-400 text-xs md:text-sm mb-2">Humidité</p>
+          <p class="text-xl md:text-2xl font-bold">46%</p>
+      </div>
+      <div class="bg-(--coloc-Black) rounded-xl md:rounded-2xl p-4 md:p-6">
+          <p class="text-gray-400 text-xs md:text-sm mb-2">Humidité</p>
+          <p class="text-xl md:text-2xl font-bold">46%</p>
+      </div>
+      <div class="bg-(--coloc-Black) rounded-xl md:rounded-2xl p-4 md:p-6 col-span-3">
+          <p class="text-gray-400 text-xs md:text-sm mb-2">Humidité</p>
+          <p class="text-xl md:text-2xl font-bold">46%</p>
+      </div>
+      <div class="bg-(--coloc-Black) rounded-xl md:rounded-2xl p-4 md:p-6 ">
+          <p class="text-gray-400 text-xs md:text-sm mb-2">Humidité</p>
+          <p class="text-xl md:text-2xl font-bold">46%</p>
+      </div>
+      <div class="bg-(--coloc-Black) rounded-xl md:rounded-2xl p-4 md:p-6 col-span-2">
+          <p class="text-gray-400 text-xs md:text-sm mb-2">Humidité</p>
+          <p class="text-xl md:text-2xl font-bold">46%</p>
+      </div>
+    </div>
+    <div>
+      <div class="*:mx-2 *:rounded-lg">
+        <input 
+        onchange={(e) => handleSearch(e)}
+        type="text"
+        class="bg-(--color-White)">
+        <button class="p-2 bg-(--coloc-Black)">Rechercher</button>
+      </div>
+      <div 
+      class="grow-2"
+        id="plot-container"
+        data-medecins={JSON.stringify(medecins)}
+        data-departements={JSON.stringify(departements)}
+      ></div>
+    </div>
+  </div>
 </Layout>
 
 <script>
