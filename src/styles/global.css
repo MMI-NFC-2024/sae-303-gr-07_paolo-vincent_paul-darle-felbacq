@@ -18,7 +18,8 @@
         color: var(--color-white);
     };
     body {
-        background-color: var(--color-deepblue)
+        background-color: var(--color-deepblue);
+        display: flex;
     };
     h1 {
         font-size: var(--text-4xl);
