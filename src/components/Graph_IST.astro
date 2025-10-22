@@ -1,12 +1,11 @@
 ---
 import depistage from "../assets/Depistages_IST.json";
+const { Code_Dpt = "01" } = Astro.props;
+
+const departmentData = depistage.find(e => e.Code_Dpt === Code_Dpt);
+const Libelle_Dpt = departmentData?.Libelle_Dpt || "Ain";
 ---
 <div>
-    <select name= "Dpt_IST" id="Dpt_IST">
-        {depistage.map((e) => (
-            <option value={e.Libelle_Dpt}>{e.Libelle_Dpt}</option>
-        ))}
-    </select>
     <select name= "Infection" id="Infection">
         <option value="Chlamydia trachomatis">Chlamydia trachomatis</option>
         <option value="Gonocoque">Gonocoque</option>
@@ -20,14 +19,14 @@ import depistage from "../assets/Depistages_IST.json";
     </select>
     <div 
     id="carte-depistage-container"
-    data-depistage={JSON.stringify(depistage)}>
+    data-depistage={JSON.stringify(depistage)}
+    data-libelle-dpt={Libelle_Dpt}>
     </div>
 </div>
 
 <script>
     import * as Plot from "@observablehq/plot";
 
-    let Dpt_IST = (document.getElementById("Dpt_IST") as HTMLSelectElement)?.value ?? "";
     let Infection = (document.getElementById("Infection") as HTMLSelectElement)?.value ?? "";
     let Age_IST = (document.getElementById("Age_IST") as HTMLSelectElement)?.value ?? "";
 
@@ -37,18 +36,22 @@ import depistage from "../assets/Depistages_IST.json";
         if (!container) return;
         
         const depistage = JSON.parse(container.dataset.depistage!);
+        const Libelle_Dpt = container.dataset.libelleDpt!;
         
         container.innerHTML = "";
         
+        // Determine correct article based on infection name
+        const article = Infection === "Syphilis" ? "la" : "le";
+        
         const plot = Plot.plot({
-            title: `Dépistages réalisés pour la ${Infection} en ${Dpt_IST} entre 2014 et 2022`,
+            title: `Dépistages réalisés pour ${article} ${Infection} en ${Libelle_Dpt} entre 2014 et 2022`,
             color: { scheme: "Blues", legend: true },
             y: { grid: true, label: "Nombres de personnes dépistées" },
             marks: [
                 Plot.areaY(
                     depistage.filter(
                         (d: any) =>
-                        d.Libelle_Dpt === Dpt_IST &&
+                        d.Libelle_Dpt === Libelle_Dpt &&
                         d.Infection === Infection &&
                         d.Classe_Age === Age_IST &&
                         d.Sexe !== "Hommes et Femmes"
@@ -69,11 +72,6 @@ import depistage from "../assets/Depistages_IST.json";
     }
     
     updatePlot();
-    
-    document.getElementById("Dpt_IST")?.addEventListener("change", (e) => {
-        Dpt_IST = (e.target as HTMLSelectElement).value;
-        updatePlot();
-    });
     
     document.getElementById("Infection")?.addEventListener("change", (e) => {
         Infection = (e.target as HTMLSelectElement).value;

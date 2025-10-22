@@ -1,34 +1,167 @@
 ---
 import Vac_Adultes from "../assets/Vaccins_Ados_Adultes_Flat.json";
 import Vac_Enfants from "../assets/Vaccins_Nourrissons_Flat.json";
+const { Code_Dpt = "01" } = Astro.props;
+
+const departmentData = Vac_Enfants.find(e => e.Code_Dpt === Code_Dpt) || Vac_Adultes.find(e => e.Code_Dpt === Code_Dpt);
+const Libelle_Dpt = departmentData?.Libelle_Dpt || "Ain";
+
+const uniqueVaccinsEnfants = [...new Set(Vac_Enfants.map(e => e.Vaccin))];
+const uniqueVaccinsAdultes = [...new Set(Vac_Adultes.map(e => e.Vaccin))];
 ---
-<div class="slider-container">
-    <div class="slider">
-        <div id="Nourissons">
-            {Vac_Enfants.map((e) => (
-                <input type="checkbox" name="Vaccins_Nourissons" value={e.Libelle_Dpt} />
-            ))}
-            
-            <div 
-            id="graph-vaccins-container"
-            data-moyennes={JSON.stringify(Vac_Adultes)}
-            data-flat={JSON.stringify(Vac_Enfants)}>
+<div>
+    <nav class="menu-age">
+        <h3>Tranche d'âge</h3>
+        <select name="age-menu" id="age-menu">
+            <option value="Nourissons">Nourrissons</option>
+            <option value="Adultes">Adultes</option>
+        </select>
+    </nav>
+    <div class="slider-container">
+        <div class="slider">
+            <div id="Nourissons" class="slide">
+                {uniqueVaccinsEnfants.map((vaccin) => (
+                    <label>
+                        <input type="checkbox" name="Vaccins_Nourissons" value={vaccin} />
+                        {vaccin}
+                    </label>
+                ))}
+                <div 
+                id="graph-vaccins-container-nourissons"
+                data-vac-enfants={JSON.stringify(Vac_Enfants)}
+                data-libelle-dpt={Libelle_Dpt}>
+                </div>
             </div>
-        </div>
-        
-        <div id="Adultes">
-            {Vac_Adultes.map((e) => (
-                <label>
-                    <input type="checkbox" name="Vaccins_Adultes" value={e.Vaccin} />
-                    {e.Vaccin}
-                </label>
-            ))}
             
-            <div 
-            id="graph-vaccins-container"
-            data-moyennes={JSON.stringify(Vac_Adultes)}
-            data-flat={JSON.stringify(Vac_Enfants)}>
+
+            <div id="Adultes" class="slide">
+                {uniqueVaccinsAdultes.map((vaccin) => (
+                    <label>
+                        <input type="checkbox" name="Vaccins_Adultes" value={vaccin} />
+                        {vaccin}
+                    </label>
+                ))}
+                <div 
+                id="graph-vaccins-container-adultes"
+                data-vac-adultes={JSON.stringify(Vac_Adultes)}
+                data-libelle-dpt={Libelle_Dpt}>
+                </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    import * as Plot from "@observablehq/plot";
+
+    const container_Nourissons = document.querySelector("#graph-vaccins-container-nourissons") as HTMLElement;
+    const container_Adultes = document.querySelector("#graph-vaccins-container-adultes") as HTMLElement;
+
+    const ageSelect = document.querySelector("#age-menu") as HTMLSelectElement;
+
+    ageSelect?.addEventListener("change", (evt) => {
+        const value = (evt.target as HTMLSelectElement).value;
+        const targetElement = document.querySelector(`#${value}`);
+        targetElement?.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    function updatePlotNourissons() {
+        const Vac_Enfants = JSON.parse(container_Nourissons.dataset.vacEnfants!);
+        const Libelle_Dpt = container_Nourissons.dataset.libelleDpt!;
+        const checkboxes = document.querySelectorAll('input[name="Vaccins_Nourissons"]:checked');
+        const selectedVaccins = Array.from(checkboxes).map(cb => (cb as HTMLInputElement).value);
+        const  Vac_Enfants_Filter = Vac_Enfants.filter((d: any)=> d.Libelle_Dpt === Libelle_Dpt && selectedVaccins.includes(d.Vaccin) && d.Valeur !=null);
+        container_Nourissons.innerHTML = "";
+
+        const plot_N = Plot.plot({
+            title: `Évolution de la couverture vaccinale des nourrissons en ${Libelle_Dpt}`,
+            y: {
+                label: "% de nourrissons vaccinés",
+                grid: true,
+                domain: [0, 100]
+            },
+            color: { label: "Vaccin"},
+            marks: [
+                Plot.lineY(Vac_Enfants_Filter,
+                    { x: "Annee", y: "Valeur", stroke: "Vaccin"}
+                ),
+                Plot.dot(Vac_Enfants_Filter,
+                    {x: "Annee", y: "Valeur", stroke: "White", r: 3, title: (d) => `${d.Vaccin}\n${d.Annee} : ${d.Valeur.toFixed(1)}%`, tip: true}
+                )
+            ]
+        })
+        container_Nourissons.append(plot_N);
+    }
+    updatePlotNourissons();
+
+    function updatePlotAdultes() {
+        const Vac_Adultes = JSON.parse(container_Adultes.dataset.vacAdultes!);
+        const Libelle_Dpt = container_Adultes.dataset.libelleDpt!;
+        const checkboxes = document.querySelectorAll('input[name="Vaccins_Adultes"]:checked');
+        const selectedVaccins = Array.from(checkboxes).map(cb => (cb as HTMLInputElement).value);
+        const  Vac_Adultes_Filter = Vac_Adultes.filter((d: any)=> d.Libelle_Dpt === Libelle_Dpt && selectedVaccins.includes(d.Vaccin) && d.Valeur !=null);
+        container_Adultes.innerHTML = "";
+
+        const plot_A = Plot.plot({
+            title: `Évolution de la couverture vaccinale des adolescents et adultes en ${Libelle_Dpt}`,
+            y: {
+                label: "% d'adolescents et d'adultes vaccinés",
+                grid: true,
+                domain: [0, 100]
+            },
+            color: { label: "Vaccin"},
+            marks: [
+                Plot.lineY(Vac_Adultes_Filter,
+                    { x: "Annee", y: "Valeur", stroke: "Vaccin"}
+                ),
+                Plot.dot(Vac_Adultes_Filter,
+                    {x: "Annee", y: "Valeur", stroke: "White", r: 3, title: (d) => `${d.Vaccin}\n${d.Annee} : ${d.Valeur.toFixed(1)}%`, tip: true}
+                )
+            ]
+        })
+        container_Adultes.append(plot_A);
+    }
+    updatePlotAdultes();
+
+    // Add event listeners for checkboxes
+    document.querySelectorAll('input[name="Vaccins_Nourissons"]').forEach(checkbox => {
+        checkbox.addEventListener('change', updatePlotNourissons);
+    });
+
+    document.querySelectorAll('input[name="Vaccins_Adultes"]').forEach(checkbox => {
+        checkbox.addEventListener('change', updatePlotAdultes);
+    });
+</script>
+
+<style>
+    .slider-container {
+        width: 100%;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    .slider {
+        display: flex;
+        width: 100%;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+    }
+
+    .slide {
+        flex: 0 0 100%;
+        width: 100%;
+        scroll-snap-align: start;
+        padding: 1rem;
+    }
+
+    .menu-age {
+        margin-bottom: 2rem;
+    }
+
+    .menu-age select {
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+</style>
