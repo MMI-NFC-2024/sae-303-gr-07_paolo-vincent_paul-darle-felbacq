@@ -17,6 +17,7 @@ const search = url.searchParams.get('search') || '';
 let communeCode = "59350"; // Lille by default
 let departementCode = "59";
 let communeName = "Lille";
+let departementName = "Nord";
 
 // If there's a search, fetch the commune
 if (search && search.trim().length > 0) {
@@ -31,6 +32,7 @@ if (search && search.trim().length > 0) {
       communeCode = selectedCommune.code;
       communeName = selectedCommune.nom;
       departementCode = selectedCommune.departement?.code || "59";
+      departementName = selectedCommune.departement?.nom || "test";
     }
   } catch (error) {
     console.error("Error fetching commune:", error);
@@ -42,7 +44,13 @@ if (search && search.trim().length > 0) {
 
 
   <div class="flex gap-4">
-    <div class="grid grid-cols-3 gap-4 *:h-fill grow-3">
+    <div class="w-2/3 flex flex-col p-4">
+      <div>
+      <h1 class="inline">{communeName}</h1>
+      <span>  -  </span>
+      <h2 class="inline">{departementName}</h2>
+      </div>
+    <div class="grid grid-cols-3 gap-4 *:h-fill w-full">
       <div class="card col-span-2 ">
           <GraphRing Code_Dpt={departementCode} />
       </div>
@@ -50,7 +58,7 @@ if (search && search.trim().length > 0) {
         <Figure_Medecins Code_Commune={communeCode} />
       </div>
       <div class="card col-span-3">
-        <Graph_Vaccin Code_Commune={communeCode} />
+        <Graph_Vaccin Code_Dpt={departementCode} />
       </div>
       <div class="card ">
         <Graph_APL Code_Commune={communeCode} />
@@ -59,7 +67,8 @@ if (search && search.trim().length > 0) {
         <GraphIST Code_Dpt={departementCode} />
       </div>
     </div>
-    <div>
+    </div>
+    <div class="w-1/3">
       <form method="get" action="/" class="*:mx-2 *:rounded-lg mb-4">
         <input 
           id="search-input"

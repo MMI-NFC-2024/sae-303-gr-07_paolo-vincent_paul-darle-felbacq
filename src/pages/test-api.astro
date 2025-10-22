@@ -1,5 +1,8 @@
 ---
-
+const communes = await fetch('https://geo.api.gouv.fr/communes?nom=Paris');
+const data = await communes.json();
+const ville = data[0];
+console.log(ville);
 ---
 
 <script>
