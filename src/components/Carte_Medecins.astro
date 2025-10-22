@@ -1,0 +1,62 @@
+---
+import medecins from "../assets/medecins_propres.json";
+import departements from "../assets/departements.geojson.json";
+---
+
+<div 
+  id="carte-medecins-container"
+  data-medecins={JSON.stringify(medecins)}
+  data-departements={JSON.stringify(departements)}>
+</div>
+
+<script>
+  import * as Plot from "@observablehq/plot";
+  
+  const container = document.querySelector("#carte-medecins-container") as HTMLElement;
+  if (container) {
+    const medecins = JSON.parse(container.dataset.medecins!);
+    const departements = JSON.parse(container.dataset.departements!);
+    
+    const plot = Plot.plot({
+      title: `Carte de France Montrant le nombre de médecins par département`,
+      height: 500,
+      width: 500,
+      projection: {
+        type: "mercator",
+        domain: departements
+      },
+      color: {
+        type: "linear",
+        scheme: "blues",
+        label: "Médecins pour 100 000 habitants",
+        legend: true
+      },
+      marks: [
+        Plot.geo(departements, {
+          fill: (d: any) => {
+            const nomDepartement = d.properties.nom;
+            const medData = medecins.find(
+              (med: any) => med.Departement === nomDepartement
+            );
+            return medData?.PourCent ?? null;
+          },
+          stroke: "black",
+          strokeWidth: 0.2,
+          tip: {
+            format: { x: false, y: false },
+            title: (d: any) => {
+              const nomDepartement = d.properties.nom;
+              const medData = medecins.find(
+                (med: any) => med.Departement === nomDepartement
+              );
+              if (!medData) return `Département: ${nomDepartement}\nDonnées non disponibles`;
+              return `Département: ${nomDepartement}\nMédecins: ${medData.Nombre}`;
+            }
+          }
+        })
+      ]
+    });
+    
+    container.append(plot);
+  }
+</script>

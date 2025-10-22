@@ -1,8 +1,10 @@
 ---
 import PlotFigure from "../components/PlotFigure.astro";
 import Layout from "../layouts/Layout.astro";
-import medecins from "../assets/medecins_propres.json";
 import departements from "../assets/departements.geojson.json";
+import CarteMedecins from "../components/Carte_Medecins.astro";
+import GraphIST from "../components/Graph_IST.astro";
+import Graph_APL from "../components/Graph_APL.astro"
 
 
 let dpt = departements.features[Math.floor(Math.random() * departements.features.length)]?.properties?.nom ?? "Paris";
@@ -26,25 +28,23 @@ const handleSearch = ((e)=>{
 <Layout>
   <div class="flex">
     <div class="grid grid-cols-3 *:h-fill grow-3">
-      <div class="bg-(--coloc-Black) rounded-xl md:rounded-2xl p-4 md:p-6 col-span-2 ">
+      <div class="bg-(--color-black) rounded-xl md:rounded-2xl p-4 md:p-6 col-span-2 ">
+          <Graph_APL />
+      </div>
+      <div class="bg-(--color-black) rounded-xl md:rounded-2xl p-4 md:p-6">
           <p class="text-gray-400 text-xs md:text-sm mb-2">Humidité</p>
           <p class="text-xl md:text-2xl font-bold">46%</p>
       </div>
-      <div class="bg-(--coloc-Black) rounded-xl md:rounded-2xl p-4 md:p-6">
+      <div class="bg-(--color-black) rounded-xl md:rounded-2xl p-4 md:p-6 col-span-3">
           <p class="text-gray-400 text-xs md:text-sm mb-2">Humidité</p>
           <p class="text-xl md:text-2xl font-bold">46%</p>
       </div>
-      <div class="bg-(--coloc-Black) rounded-xl md:rounded-2xl p-4 md:p-6 col-span-3">
+      <div class="bg-(--color-black) rounded-xl md:rounded-2xl p-4 md:p-6 ">
           <p class="text-gray-400 text-xs md:text-sm mb-2">Humidité</p>
           <p class="text-xl md:text-2xl font-bold">46%</p>
       </div>
-      <div class="bg-(--coloc-Black) rounded-xl md:rounded-2xl p-4 md:p-6 ">
-          <p class="text-gray-400 text-xs md:text-sm mb-2">Humidité</p>
-          <p class="text-xl md:text-2xl font-bold">46%</p>
-      </div>
-      <div class="bg-(--coloc-Black) rounded-xl md:rounded-2xl p-4 md:p-6 col-span-2">
-          <p class="text-gray-400 text-xs md:text-sm mb-2">Humidité</p>
-          <p class="text-xl md:text-2xl font-bold">46%</p>
+      <div class="bg-(--color-black) rounded-xl md:rounded-2xl p-4 md:p-6 col-span-2">
+          <GraphIST />
       </div>
     </div>
     <div>
@@ -52,68 +52,14 @@ const handleSearch = ((e)=>{
         <input 
         onchange={(e) => handleSearch(e)}
         type="text"
-        class="bg-(--color-White)">
-        <button class="p-2 bg-(--coloc-Black)">Rechercher</button>
+        class="bg-(--color-white)">
+        <button class="p-2 bg-(--color-black)">Rechercher</button>
       </div>
-      <div 
-      class="grow-2"
-        id="plot-container"
-        data-medecins={JSON.stringify(medecins)}
-        data-departements={JSON.stringify(departements)}
-      ></div>
+      <CarteMedecins />
     </div>
   </div>
 </Layout>
 
-<script>
-  import * as Plot from "@observablehq/plot";
-  
-  const container = document.querySelector("#plot-container");
-  const medecins = JSON.parse(container.dataset.medecins);
-  const departements = JSON.parse(container.dataset.departements);
-  
-  const plot = Plot.plot({
-    title: `Carte de France Montrant le nombre de médecins par département`,
-    height: 500,
-    width: 500,
-    projection: {
-      type: "mercator",
-      domain: departements
-    },
-    color: {
-      type: "linear",
-      scheme: "blues",
-      label: "Médecins pour 100 000 habitants",
-      legend: true
-    },
-    marks: [
-      Plot.geo(departements, {
-        fill: (d) => {
-          const nomDepartement = d.properties.nom;
-          const medData = medecins.find(
-            (med) => med.Departement === nomDepartement
-          );
-          return medData?.PourCent;
-        },
-        stroke: "black",
-        strokeWidth: 0.2,
-        tip: {
-          format: { x: false, y: false },
-          content: (d) => {
-            const nomDepartement = d.properties.nom;
-            const medData = medecins.find(
-              (med) => med.Departement === nomDepartement
-            );
-            if (!medData) return `Département: ${nomDepartement}\nDonnées non disponibles`;
-            return `Département: ${nomDepartement}\nMédecins: ${medData.Nombre}`;
-          }
-        }
-      })
-    ]
-  });
-  
-  container.append(plot);
-</script>
 
 <style>
   :global(svg g[aria-label^="tip"] text) {

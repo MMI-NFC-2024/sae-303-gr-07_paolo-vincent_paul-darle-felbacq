@@ -1,0 +1,34 @@
+---
+import Vac_Adultes from "../assets/Vaccins_Ados_Adultes_Flat.json";
+import Vac_Enfants from "../assets/Vaccins_Nourrissons_Flat.json";
+---
+<div class="slider-container">
+    <div class="slider">
+        <div id="Nourissons">
+            {Vac_Enfants.map((e) => (
+                <input type="checkbox" name="Vaccins_Nourissons" value={e.Libelle_Dpt} />
+            ))}
+            
+            <div 
+            id="graph-vaccins-container"
+            data-moyennes={JSON.stringify(Vac_Adultes)}
+            data-flat={JSON.stringify(Vac_Enfants)}>
+            </div>
+        </div>
+        
+        <div id="Adultes">
+            {Vac_Adultes.map((e) => (
+                <label>
+                    <input type="checkbox" name="Vaccins_Adultes" value={e.Vaccin} />
+                    {e.Vaccin}
+                </label>
+            ))}
+            
+            <div 
+            id="graph-vaccins-container"
+            data-moyennes={JSON.stringify(Vac_Adultes)}
+            data-flat={JSON.stringify(Vac_Enfants)}>
+            </div>
+        </div>
+    </div>
+</div>

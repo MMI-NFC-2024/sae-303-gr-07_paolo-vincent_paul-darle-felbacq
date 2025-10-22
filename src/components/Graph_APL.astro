@@ -1,0 +1,80 @@
+---
+import APL_Moyennes from "../assets/APL_Professions_Moyennes.json";
+import APL_Flat from "../assets/APL_Professions_Flat.json";
+---
+
+
+<div>
+    <select name= "Commune" id="Commune">
+        {APL_Flat.map((e) => (
+            <option value={e.Libelle_Commune}>{e.Libelle_Commune}</option>
+        ))}
+    </select>
+    
+    <div 
+    id="carte-apl-container"
+    data-moyennes={JSON.stringify(APL_Moyennes)}
+    data-flat={JSON.stringify(APL_Flat)}>
+    </div>
+</div>
+
+<script>
+    import * as Plot from "@observablehq/plot";
+
+    const container = document.querySelector('#carte-apl-container') as HTMLElement;
+    let Commune = "";
+
+    function updatePlot() {
+        if (!container) return;
+        
+        const APL_Moyennes = JSON.parse(container.dataset.moyennes!);
+        const APL_Flat = JSON.parse(container.dataset.flat!);
+        Commune = (document.getElementById("Commune") as HTMLSelectElement)?.value ?? "";
+        
+        container.innerHTML = "";
+        const plot = Plot.plot({
+            width: 370,
+            height: 470,
+            title: `Indicateur d’accessibilité potentielle (APL) de différents professionels de santé à ${Commune}`,
+            subtitle: "Équivalent temps plein pour 100 000 habitants",
+            color: {
+                domain: ["Moyenne APL Nationale", `APL ${Commune}`],
+                range: ["#ddd", "#2596be"],
+                legend: true
+            },
+            y: { label: "APL", grid: true },
+            x: { label: "" },
+            marks: [
+                Plot.barY(APL_Moyennes, {
+                x: "Profession",
+                y: "APL_Moyenne",
+                fill: "#ddd",
+                title: (d: any) =>
+                    `Moyenne nationale : ${parseInt(d.APL_Moyenne)}\n APL ${Commune} :  ${
+                    APL_Flat.filter((d: any) => d.Libelle_Commune === Commune)[0]
+                        .APL
+                    }`,
+                tip: true
+                }),
+                Plot.barY(
+                APL_Flat.filter((d: any) => d.Libelle_Commune === Commune),
+                {
+                    x: "Profession",
+                    y: "APL",
+                    fill: "#2596be",
+                    insetLeft: 10,
+                    insetRight: 10
+                }
+                )
+            ]
+        });
+        
+        container.append(plot);
+    }
+    updatePlot();
+    
+    document.getElementById("Commune")?.addEventListener("change", (e) => {
+        Commune = (e.target as HTMLSelectElement).value;
+        updatePlot();
+    });
+</script>

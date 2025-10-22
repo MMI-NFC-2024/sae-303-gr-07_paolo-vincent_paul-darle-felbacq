@@ -1,0 +1,87 @@
+---
+import depistage from "../assets/Depistages_IST.json";
+---
+<div>
+    <select name= "Dpt_IST" id="Dpt_IST">
+        {depistage.map((e) => (
+            <option value={e.Libelle_Dpt}>{e.Libelle_Dpt}</option>
+        ))}
+    </select>
+    <select name= "Infection" id="Infection">
+        <option value="Chlamydia trachomatis">Chlamydia trachomatis</option>
+        <option value="Gonocoque">Gonocoque</option>
+        <option value="Syphilis">Syphilis</option>
+    </select>
+    <select name= "Age_IST" id="Age_IST">
+        <option value="15 ans et plus">15 ans et plus</option>
+        <option value="De 15 à 25 ans">De 15 à 25 ans</option>
+        <option value="De 26 à 49 ans">De 26 à 49 ans</option>
+        <option value="50 ans et plus">50 ans et plus</option>
+    </select>
+    <div 
+    id="carte-depistage-container"
+    data-depistage={JSON.stringify(depistage)}>
+    </div>
+</div>
+
+<script>
+    import * as Plot from "@observablehq/plot";
+
+    let Dpt_IST = (document.getElementById("Dpt_IST") as HTMLSelectElement)?.value ?? "";
+    let Infection = (document.getElementById("Infection") as HTMLSelectElement)?.value ?? "";
+    let Age_IST = (document.getElementById("Age_IST") as HTMLSelectElement)?.value ?? "";
+
+    const container = document.querySelector("#carte-depistage-container") as HTMLElement;
+    
+    function updatePlot() {
+        if (!container) return;
+        
+        const depistage = JSON.parse(container.dataset.depistage!);
+        
+        container.innerHTML = "";
+        
+        const plot = Plot.plot({
+            title: `Dépistages réalisés pour la ${Infection} en ${Dpt_IST} entre 2014 et 2022`,
+            color: { scheme: "Blues", legend: true },
+            y: { grid: true, label: "Nombres de personnes dépistées" },
+            marks: [
+                Plot.areaY(
+                    depistage.filter(
+                        (d: any) =>
+                        d.Libelle_Dpt === Dpt_IST &&
+                        d.Infection === Infection &&
+                        d.Classe_Age === Age_IST &&
+                        d.Sexe !== "Hommes et Femmes"
+                    ),
+                    {
+                        x: "Annee",
+                        y: "Nombre_Personnes_Depistees",
+                        fill: "Sexe",
+                        sort: { fill: (d: any) => (d === "Hommes" ? 0 : 1) },
+                        title: "Sexe"
+                    }
+                ),
+                Plot.ruleY([0])
+            ]
+        });
+        
+        container.append(plot);
+    }
+    
+    updatePlot();
+    
+    document.getElementById("Dpt_IST")?.addEventListener("change", (e) => {
+        Dpt_IST = (e.target as HTMLSelectElement).value;
+        updatePlot();
+    });
+    
+    document.getElementById("Infection")?.addEventListener("change", (e) => {
+        Infection = (e.target as HTMLSelectElement).value;
+        updatePlot();
+    });
+    
+    document.getElementById("Age_IST")?.addEventListener("change", (e) => {
+        Age_IST = (e.target as HTMLSelectElement).value;
+        updatePlot();
+    });
+</script>
