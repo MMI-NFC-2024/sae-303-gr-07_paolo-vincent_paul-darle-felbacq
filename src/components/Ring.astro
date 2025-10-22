@@ -1,0 +1,41 @@
+---
+const { percent, figure, desc } = Astro.props;
+
+//paramètres du svg
+const radius = 57;
+const circumference = 2 * Math.PI * radius;
+const dashoffset = circumference - (circumference * percent) / 100;
+---
+
+<div class="flex flex-col w-[150px] items-center justify-center">
+  <div class="flex h-[120px] items-center justify-center relative">
+    <svg
+      class="absolute"
+      width="120"
+      height="120"
+      viewBox="0 0 120 120"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="60" cy="60" r="57" stroke="black" stroke-width="6"></circle>
+      <circle
+        class="front"
+        cx="60"
+        cy="60"
+        r="57"
+        stroke="#25428B"
+        stroke-width="6"
+        stroke-dasharray={circumference}
+        stroke-dashoffset={dashoffset}></circle>
+    </svg>
+    <span class="ring-figure">{figure}</span>
+  </div>
+  <span class="ring-text">{desc}</span>
+</div>
+
+<style>
+  .front {
+    transform: rotate(90deg);
+    transform-origin: center;
+  }
+</style>
