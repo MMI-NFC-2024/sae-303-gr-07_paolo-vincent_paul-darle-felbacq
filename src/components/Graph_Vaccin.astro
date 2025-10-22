@@ -22,7 +22,7 @@ const uniqueVaccinsAdultes = [...new Set(Vac_Adultes.map(e => e.Vaccin))];
             <div id="Nourissons" class="slide">
                 {uniqueVaccinsEnfants.map((vaccin) => (
                     <label>
-                        <input type="checkbox" name="Vaccins_Nourissons" value={vaccin} />
+                        <input type="checkbox" name="Vaccins_Nourissons" value={vaccin} checked />
                         {vaccin}
                     </label>
                 ))}
@@ -37,7 +37,7 @@ const uniqueVaccinsAdultes = [...new Set(Vac_Adultes.map(e => e.Vaccin))];
             <div id="Adultes" class="slide">
                 {uniqueVaccinsAdultes.map((vaccin) => (
                     <label>
-                        <input type="checkbox" name="Vaccins_Adultes" value={vaccin} />
+                        <input type="checkbox" name="Vaccins_Adultes" value={vaccin} checked />
                         {vaccin}
                     </label>
                 ))}

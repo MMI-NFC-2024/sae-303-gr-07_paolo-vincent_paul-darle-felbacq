@@ -39,6 +39,8 @@ if (search && search.trim().length > 0) {
 ---
 
 <Layout>
+
+
   <div class="flex gap-4">
     <div class="grid grid-cols-3 gap-4 *:h-fill grow-3">
       <div class="card col-span-2 ">
@@ -48,7 +50,7 @@ if (search && search.trim().length > 0) {
         <Figure_Medecins Code_Commune={communeCode} />
       </div>
       <div class="card col-span-3">
-        <Graph_APL Code_Commune={communeCode} />
+        <Graph_Vaccin Code_Commune={communeCode} />
       </div>
       <div class="card ">
         <Graph_APL Code_Commune={communeCode} />
@@ -97,17 +99,17 @@ if (search && search.trim().length > 0) {
 
       if (communes.length > 0) {
         suggestionsDiv.innerHTML = communes
-          .map((commune: any) => `
-            <div class="suggestion-item px-4 py-2 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-0" 
-                 data-nom="${commune.nom}">
-              <div class="font-semibold">${commune.nom}</div>
-              <div class="text-sm text-gray-400">${commune.codesPostaux?.[0] || ''} - ${commune.departement?.nom || ''}</div>
-            </div>
-          `)
-          .join('');
-        suggestionsDiv.classList.remove('hidden');
+        .map((commune: any) => `
+          <div class="suggestion-item px-4 py-2 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-0" 
+              data-nom="${commune.nom}">
+            <div class="font-semibold">${commune.nom}</div>
+            <div class="text-sm text-gray-400">${commune.codesPostaux?.[0] || ''} - ${commune.departement?.nom || ''}</div>
+          </div>
+        `)
+        .join('');
+      suggestionsDiv.classList.remove('hidden');
 
-        document.querySelectorAll('.suggestion-item').forEach((item) => {
+      document.querySelectorAll('.suggestion-item').forEach((item) => {
           item.addEventListener('click', () => {
             const nom = item.getAttribute('data-nom');
             if (nom) {
