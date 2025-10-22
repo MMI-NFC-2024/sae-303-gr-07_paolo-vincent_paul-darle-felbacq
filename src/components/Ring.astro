@@ -5,6 +5,11 @@ const { percent, figure, desc } = Astro.props;
 const radius = 57;
 const circumference = 2 * Math.PI * radius;
 const dashoffset = circumference - (circumference * percent) / 100;
+let color = "";
+if (percent <= 24) color = "#2171b5";
+else if (percent <= 49) color = "#6baed6";
+else if (percent <= 74) color = "#bdd7e7";
+else color = "#eff3ff";
 ---
 
 <div class="flex flex-col w-[150px] items-center justify-center">
@@ -23,7 +28,7 @@ const dashoffset = circumference - (circumference * percent) / 100;
         cx="60"
         cy="60"
         r="57"
-        stroke="#25428B"
+        stroke={color}
         stroke-width="6"
         stroke-dasharray={circumference}
         stroke-dashoffset={dashoffset}></circle>

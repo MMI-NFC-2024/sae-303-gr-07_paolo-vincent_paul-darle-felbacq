@@ -6,6 +6,7 @@ import CarteMedecins from "../components/Carte_Medecins.astro";
 import GraphIST from "../components/Graph_IST.astro";
 import Graph_APL from "../components/Graph_APL.astro";
 import Figure_Medecins from "../components/Figure_Medecins.astro";
+import GraphRing from "../components/Graph_Ring.astro";
 
 
 let dpt = departements.features[Math.floor(Math.random() * departements.features.length)]?.properties?.nom ?? "Paris";
@@ -30,7 +31,7 @@ const handleSearch = ((e)=>{
   <div class="flex gap-4">
     <div class="grid grid-cols-3 gap-4 *:h-fill grow-3">
       <div class="card col-span-2 ">
-          
+          <GraphRing Code_Dpt="01" />
       </div>
       <div class="card">
         <Figure_Medecins Code_Commune="01001" />
