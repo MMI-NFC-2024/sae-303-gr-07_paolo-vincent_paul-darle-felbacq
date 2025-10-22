@@ -1,8 +1,11 @@
 ---
 import Layout from "../layouts/Layout.astro";
+
+import Ring from "../components/Ring.astro";
 ---
 
 <Layout title="test de style">
+  <div>
     <h1>Ceci est un H1</h1>
     <h2>Ceci est un H2</h2>
     <h3>Ceci est un H3</h3>
@@ -11,8 +14,15 @@ import Layout from "../layouts/Layout.astro";
     <p class="ring-figure">Ceci est un ring-figure</p>
     <p class="ring-text">Ceci est un ring-text</p>
     <select name="test" id="test-select">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
     </select>
+    <div class="flex gap-4">
+        <Ring percent={90} figure="23890€" desc="Niveau de vie médian" />
+        <Ring percent={13.1} figure="13,1%" desc="Sous le seuil de pauvreté" />
+        <Ring percent={58} figure="2,1" desc="Certification des hôpitaux" />
+        <Ring percent={67} figure="355" desc="Médecins pour 100000 habitants" />
+    </div>
+  </div>
 </Layout>
