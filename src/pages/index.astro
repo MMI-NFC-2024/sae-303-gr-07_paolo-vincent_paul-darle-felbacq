@@ -11,7 +11,7 @@ import GraphRing from "../components/Graph_Ring.astro";
 
 // Get search from URL
 const url = new URL(Astro.request.url);
-const search = url.searchParams.get('search') || '';
+const search = url.searchParams.get("search") || "";
 
 // Intermediate variables - defaults
 let communeCode = "59350"; // Lille by default
@@ -26,7 +26,7 @@ if (search && search.trim().length > 0) {
       `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(search.trim())}&fields=nom,code,codesPostaux,departement&boost=population&limit=1`
     );
     const communes = await apiResponse.json();
-    
+
     if (communes && communes.length > 0) {
       const selectedCommune = communes[0];
       communeCode = selectedCommune.code;
@@ -44,31 +44,32 @@ if (search && search.trim().length > 0) {
   <div class="flex gap-4">
     <div class="w-2/3 flex flex-col p-4">
       <div>
-      <h1 class="inline">{communeName}</h1>
-      <span>  -  </span>
-      <h2 class="inline">{departementName}</h2>
+        <h1 class="inline">{communeName}</h1>
+        <span> - </span>
+        <h2 class="inline">{departementName}</h2>
       </div>
-    <div class="grid grid-cols-3 gap-4 *:h-fill w-full">
-      <div class="card col-span-2 ">
+      <div class="grid grid-cols-3 gap-4 *:h-fill w-full">
+        <div class="card col-span-2">
           <GraphRing Code_Dpt={departementCode} />
-      </div>
-      <div class="card">
-        <Figure_Medecins Code_Commune={communeCode} />
-      </div>
-      <div class="card col-span-3">
-        <Graph_Vaccin Code_Dpt={departementCode} />
-      </div>
-      <div class="card ">
-        <Graph_APL Code_Commune={communeCode} />
-      </div>
-      <div class="card col-span-2">
-        <GraphIST Code_Dpt={departementCode} />
+        </div>
+        <div class="card">
+          <Figure_Medecins Code_Commune={communeCode} />
+        </div>
+        <div class="card col-span-3">
+          <Graph_Vaccin Code_Dpt={departementCode} />
+        </div>
+        <div class="card">
+          <Graph_APL Code_Commune={communeCode} />
+        </div>
+        <div class="card col-span-2">
+          <GraphIST Code_Dpt={departementCode} />
+        </div>
       </div>
     </div>
-    </div>
+
     <div class="w-1/3">
       <form method="get" action="/" class="*:mx-2 *:rounded-lg mb-4">
-        <input 
+        <input
           id="search-input"
           name="search"
           type="text"
@@ -78,7 +79,11 @@ if (search && search.trim().length > 0) {
           autocomplete="off"
         />
         <button type="submit" class="p-2 bg-(--color-black)">Rechercher</button>
-        <div id="suggestions" class="hidden mt-2 bg-(--color-black) rounded-lg max-h-60 overflow-y-auto"></div>
+        <div
+          id="suggestions"
+          class="hidden mt-2 bg-(--color-black) rounded-lg max-h-60 overflow-y-auto"
+        >
+        </div>
       </form>
       <CarteMedecins />
     </div>
@@ -86,15 +91,19 @@ if (search && search.trim().length > 0) {
 </Layout>
 
 <script>
-  const searchInput = document.getElementById('search-input') as HTMLInputElement;
-  const suggestionsDiv = document.getElementById('suggestions') as HTMLDivElement;
+  const searchInput = document.getElementById(
+    "search-input"
+  ) as HTMLInputElement;
+  const suggestionsDiv = document.getElementById(
+    "suggestions"
+  ) as HTMLDivElement;
   const searchForm = searchInput.form as HTMLFormElement;
-  
+
   let debounceTimer: number;
 
   async function showSuggestions(query: string) {
     if (query.length < 2) {
-      suggestionsDiv.classList.add('hidden');
+      suggestionsDiv.classList.add("hidden");
       return;
     }
 
@@ -106,19 +115,21 @@ if (search && search.trim().length > 0) {
 
       if (communes.length > 0) {
         suggestionsDiv.innerHTML = communes
-        .map((commune: any) => `
+          .map(
+            (commune: any) => `
           <div class="suggestion-item px-4 py-2 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-0" 
               data-nom="${commune.nom}">
             <div class="font-semibold">${commune.nom}</div>
-            <div class="text-sm text-gray-400">${commune.codesPostaux?.[0] || ''} - ${commune.departement?.nom || ''}</div>
+            <div class="text-sm text-gray-400">${commune.codesPostaux?.[0] || ""} - ${commune.departement?.nom || ""}</div>
           </div>
-        `)
-        .join('');
-      suggestionsDiv.classList.remove('hidden');
+        `
+          )
+          .join("");
+        suggestionsDiv.classList.remove("hidden");
 
-      document.querySelectorAll('.suggestion-item').forEach((item) => {
-          item.addEventListener('click', () => {
-            const nom = item.getAttribute('data-nom');
+        document.querySelectorAll(".suggestion-item").forEach((item) => {
+          item.addEventListener("click", () => {
+            const nom = item.getAttribute("data-nom");
             if (nom) {
               searchInput.value = nom;
               searchForm.submit();
@@ -126,27 +137,30 @@ if (search && search.trim().length > 0) {
           });
         });
       } else {
-        suggestionsDiv.classList.add('hidden');
+        suggestionsDiv.classList.add("hidden");
       }
     } catch (error) {
-      console.error('Error fetching suggestions:', error);
-      suggestionsDiv.classList.add('hidden');
+      console.error("Error fetching suggestions:", error);
+      suggestionsDiv.classList.add("hidden");
     }
   }
 
-  searchInput.addEventListener('input', (e) => {
+  searchInput.addEventListener("input", (e) => {
     clearTimeout(debounceTimer);
     const query = (e.target as HTMLInputElement).value;
     debounceTimer = window.setTimeout(() => showSuggestions(query), 300);
   });
 
-  document.addEventListener('click', (e) => {
-    if (!searchInput.contains(e.target as Node) && !suggestionsDiv.contains(e.target as Node)) {
-      suggestionsDiv.classList.add('hidden');
+  document.addEventListener("click", (e) => {
+    if (
+      !searchInput.contains(e.target as Node) &&
+      !suggestionsDiv.contains(e.target as Node)
+    ) {
+      suggestionsDiv.classList.add("hidden");
     }
   });
-  
-  searchForm.addEventListener('submit', (e) => {
+
+  searchForm.addEventListener("submit", (e) => {
     const value = searchInput.value.trim();
     if (!value) {
       e.preventDefault();
@@ -158,7 +172,7 @@ if (search && search.trim().length > 0) {
   :global(svg g[aria-label^="tip"] text) {
     fill: black !important;
   }
-  
+
   #suggestions {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   }
