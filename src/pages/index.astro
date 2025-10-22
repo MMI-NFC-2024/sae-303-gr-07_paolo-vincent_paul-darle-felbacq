@@ -1,7 +1,5 @@
 ---
-import PlotFigure from "../components/PlotFigure.astro";
 import Layout from "../layouts/Layout.astro";
-import departements from "../assets/departements.geojson.json";
 import CarteMedecins from "../components/Carte_Medecins.astro";
 import GraphIST from "../components/Graph_IST.astro";
 import Graph_APL from "../components/Graph_APL.astro";
@@ -85,7 +83,7 @@ if (search && search.trim().length > 0) {
         >
         </div>
       </form>
-      <CarteMedecins />
+      <CarteMedecins client:idle />
     </div>
   </div>
 </Layout>
