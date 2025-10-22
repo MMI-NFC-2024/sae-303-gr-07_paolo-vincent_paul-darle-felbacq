@@ -1,0 +1,82 @@
+---
+import Ring from "../components/Ring.astro";
+import Salaires_Propres from "../assets/salaires_propres.json";
+import Avg_Certif_Hopital_Dpt from "../assets/Avg_Certif_Hopital_Dpt.json";
+import Medecins_Propres from "../assets/medecins_propres.json";
+
+const { Code_Dpt } = Astro.props;
+
+const Data = Salaires_Propres.find((d) => d.Code === Code_Dpt);
+const Salaire = Data?.Salaire;
+const Pauvrete = Data?.Pauvrete;
+const Certif_Hopital = Avg_Certif_Hopital_Dpt.find(
+  (d) => d.Code_Dpt === Code_Dpt
+)?.Avg_Certif;
+const Medecins = Medecins_Propres.find((d) => d.Code === Code_Dpt)?.PourCent;
+
+const Max_Salaire = Salaires_Propres.reduce(
+  (max, d) =>
+    parseInt(d.Salaire.replace(" ", "")) > max
+      ? parseInt(d.Salaire.replace(" ", ""))
+      : max,
+  0
+);
+
+const Min_Salaire = Salaires_Propres.reduce(
+  (min, d) =>
+    parseInt(d.Salaire.replace(" ", "")) < min
+      ? parseInt(d.Salaire.replace(" ", ""))
+      : min,
+  100000
+);
+
+const Max_Pauvrete = Salaires_Propres.reduce(
+  (max, d) =>
+    parseFloat(d.Pauvrete.replace(",", ".")) > max
+      ? parseFloat(d.Pauvrete.replace(",", "."))
+      : max,
+  0
+);
+
+const Min_Pauvrete = Salaires_Propres.reduce(
+  (min, d) =>
+    parseFloat(d.Pauvrete.replace(",", ".")) < min
+      ? parseFloat(d.Pauvrete.replace(",", "."))
+      : min,
+  100000
+);
+
+const Max_Medecins = Medecins_Propres.reduce(
+  (max, d) => (d.PourCent > max ? d.PourCent : max),
+  0
+);
+---
+
+<div class="flex flex-col w-full gap-4 text-lg font-medium mb-4">
+  <h3>Statistiques du département</h3>
+  <div class="flex gap-4 w-full h-full flex-wrap justify-center align-middle">
+    {Salaire && Min_Salaire && Max_Salaire ? 
+    <Ring
+      percent={((parseInt(Salaire.replace(" ", ""))-Min_Salaire) / (Max_Salaire-Min_Salaire)) * 100}
+      figure=`${Salaire}€`
+      desc="Niveau de vie médian"
+    /> : <span class="text-sm text-center">Données manquantes</span>}
+    {Pauvrete && Min_Pauvrete && Max_Pauvrete ? 
+    <Ring
+      percent={((parseFloat(Pauvrete.replace(",", "."))-Max_Pauvrete) / (Min_Pauvrete-Max_Pauvrete)) * 100}
+      figure=`${Pauvrete}%`
+      desc="Sous le seuil de pauvreté"
+    /> : <span class="text-sm text-center">Données manquantes</span>}
+    {Certif_Hopital ? <Ring
+      percent={(6 - Certif_Hopital) * 20}
+      figure={((6 - Certif_Hopital) * 20)>2.5 ? `↑ ${Certif_Hopital}` : `↓ ${Certif_Hopital}` }
+      desc="Certification des hôpitaux"
+    /> : <span class="text-sm text-center">Données manquantes</span>}
+    {Medecins && Max_Medecins ? <Ring
+      percent={(Medecins / Max_Medecins) * 100}
+      figure={Medecins}
+      desc="Médecins pour 100000 habitants"
+    /> : <span class="text-sm text-center">Données manquantes</span>}
+    
+  </div>
+</div>

@@ -6,6 +6,8 @@ import CarteMedecins from "../components/Carte_Medecins.astro";
 import GraphIST from "../components/Graph_IST.astro";
 import Graph_APL from "../components/Graph_APL.astro";
 import Graph_Vaccin from "../components/Graph_Vaccin.astro";
+import Figure_Medecins from "../components/Figure_Medecins.astro";
+import GraphRing from "../components/Graph_Ring.astro";
 
 // Get search from URL
 const url = new URL(Astro.request.url);
@@ -38,22 +40,20 @@ if (search && search.trim().length > 0) {
 
 <Layout>
   <div class="flex gap-4">
-    <div class="grid grid-cols-3 gap-4 *:h-fill grow">
-      <div class="bg-(--color-black) rounded-xl md:rounded-2xl p-4 md:p-6 col-span-2">
-        <h2 class="text-xl font-bold">{communeName}</h2>
-        <p class="text-gray-400 text-sm">Code commune: {communeCode}</p>
+    <div class="grid grid-cols-3 gap-4 *:h-fill grow-3">
+      <div class="card col-span-2 ">
+          <GraphRing Code_Dpt={departementCode} />
       </div>
-      <div class="bg-(--color-black) rounded-xl md:rounded-2xl p-4 md:p-6">
-        <p class="text-gray-400 text-xs md:text-sm mb-2">Département</p>
-        <p class="text-xl md:text-2xl font-bold">{departementCode}</p>
+      <div class="card">
+        <Figure_Medecins Code_Commune={communeCode} />
       </div>
-      <div class="bg-(--color-black) rounded-xl md:rounded-2xl p-4 md:p-6 col-span-3">
+      <div class="card col-span-3">
         <Graph_APL Code_Commune={communeCode} />
       </div>
-      <div class="bg-(--color-black) rounded-xl md:rounded-2xl p-4 md:p-6">
-        <Graph_Vaccin Code_Dpt={departementCode}/>
+      <div class="card ">
+        <Graph_APL Code_Commune={communeCode} />
       </div>
-      <div class="bg-(--color-black) rounded-xl md:rounded-2xl p-4 md:p-6 col-span-2">
+      <div class="card col-span-2">
         <GraphIST Code_Dpt={departementCode} />
       </div>
     </div>

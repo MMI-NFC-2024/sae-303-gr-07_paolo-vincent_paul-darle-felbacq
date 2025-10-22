@@ -1,0 +1,14 @@
+---
+import APL_Medecins from "../assets/APL_Medecins_Generalistes.json";
+
+const {Code_Commune} = Astro.props;
+
+const APL = APL_Medecins.find((d) => d.Code_Commune === Code_Commune)?.APL;
+---
+
+<div class="flex flex-col w-full justify-center gap-4">
+    {APL ? 
+    <p class="text-5xl font-black text-center">{APL}</p>
+    <p class="text-sm text-center">Nombre de consultations accessibles par an et par habitant chez un médecin généraliste</p>
+     : <p class="text-sm text-center">Données manquantes</p>}
+</div>
